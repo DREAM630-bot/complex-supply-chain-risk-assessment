@@ -168,27 +168,45 @@ with tab2:
         use_container_width=True, hide_index=True,
     )
 
+# ------------------------------------------------------------------ ③ 文本测度
 with tab3:
     st.subheader("多智能体文本测度：Extractor → Feedback → Revision")
     
-    # 【修复】建立绝对安全的 ID 到名称的一维映射字典
-    id_to_name = {n["id"]: n["name"] for n in CFG["nodes"]}
-    
+    # 【防弹级】建立绝对安全的 ID 到名称的映射
+    id_to_name = {}
+    for n in CFG.get("nodes", []):
+        if isinstance(n, dict):
+            id_to_name[n.get("id")] = n.get("name")
+            
     rows = []
     for r in results:
-        node_name = id_to_name.get(r.get("node"), r.get("node"))
-        rows.append({
-            "事件": r.get("title", ""), 
-            "节点": node_name,
-            "日期": r.get("date", ""), 
-            "范围词": r.get("scope_word", ""),
-            "raw": r.get("severity_raw", 0.0),
-            "final": r.get("severity_final") if not r.get("rejected") else "驳回",
-            "证据锚点": r.get("evidence_anchor", ""),
-            "规则日志": " | ".join(r.get("rule_log", [])),
-        })
+        try:
+            # 强制转换为字典，防止 Streamlit 缓存导致类型变异
+            r_dict = dict(r) if hasattr(r, 'keys') else {}
+            
+            # 安全提取节点 ID，强制转字符串以防万一
+            node_id = str(r_dict.get("node", ""))
+            node_name = id_to_name.get(node_id, node_id)
+            
+            rows.append({
+                "事件": r_dict.get("title", "未知事件"), 
+                "节点": node_name,
+                "日期": r_dict.get("date", ""), 
+                "范围词": r_dict.get("scope_word", ""),
+                "raw": r_dict.get("severity_raw", 0.0),
+                "final": r_dict.get("severity_final", "") if not r_dict.get("rejected") else "驳回",
+                "证据锚点": r_dict.get("evidence_anchor", ""),
+                "规则日志": " | ".join(r_dict.get("rule_log", [])) if isinstance(r_dict.get("rule_log"), list) else "",
+            })
+        except Exception as e:
+            # 万一某条数据坏了，不崩整个页面，而是在界面上提示
+            st.warning(f"有一条数据解析失败，跳过。错误: {e}")
+            
+    if rows:
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    else:
+        st.info("当前暂无文本测度数据。")
         
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
     st.info("R1 为硬门禁：证据锚点必须在原文逐字存在，否则直接驳回，不进入后续规则。"
             "所有暴露度评分均可追溯至原文锚点与触发规则。")
 
