@@ -271,7 +271,11 @@ with tab3:
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         margin=dict(l=40, r=40, t=40, b=40),
-        legend_title="节点角色"
+        # 【修改】放大图例的字体和标题
+        legend=dict(
+            title=dict(text="节点角色", font=dict(size=18)),
+            font=dict(size=16)
+        )
     )
     st.plotly_chart(fig_net, use_container_width=True)
 
@@ -291,7 +295,6 @@ with tab4:
 
 with tab5:
     st.subheader("供应链风险智能问答")
-    # 修改了第三个推荐问题
     st.markdown("""
     **您可以尝试问以下问题：**
     1. 台风导致 N5 停摆，N2 也设备老化，预算给谁？
