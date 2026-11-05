@@ -188,9 +188,14 @@ with tab3:
             node_id = str(r_dict.get("node", ""))
             node_name = id_to_name.get(node_id, node_id)
             
+            # 获取摘要文本，截取前 25 个字符
+            raw_text = r_dict.get("_text", "")
+            summary = raw_text[:25] + "..." if len(raw_text) > 25 else raw_text
+            
             rows.append({
-                "事件": r_dict.get("title", "未知事件"), 
+                "事件类型": r_dict.get("title", "未知事件"), 
                 "节点": node_name,
+                "摘要": summary,
                 "日期": r_dict.get("date", ""), 
                 "范围词": r_dict.get("scope_word", ""),
                 "raw": r_dict.get("severity_raw", 0.0),
