@@ -128,13 +128,16 @@ with tab1:
     y_thresh = df["responsibility"].quantile(0.70)
     fig.add_hline(y=y_thresh, line_dash="dash", line_color="gray")
     
+    # 放大散点和文字标签
     fig.update_traces(
         textposition="top center", 
-        marker=dict(size=14, line=dict(width=1.5, color='white'))
+        marker=dict(size=24, line=dict(width=2, color='white')),
+        textfont=dict(size=15, color='black')
     )
     fig.update_layout(
         height=650, margin=dict(l=40, r=40, t=40, b=40), legend_title="象限",
         plot_bgcolor="rgba(240,242,246,0.5)",
+        font=dict(size=14)  # 放大坐标轴字体
     )
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='Lightgray')
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='Lightgray')
@@ -157,8 +160,8 @@ with tab2:
                       "显性核心": "#d62728", "隐性关键": "#ff7f0e",
                       "局部扰动": "#1f77b4", "常规节点": "#7f7f7f",
                   })
-    fig2.update_traces(texttemplate="%{text:.3f}", textposition="outside")
-    fig2.update_layout(height=460, yaxis_title="", xaxis_title="归一化责任度")
+    fig2.update_traces(texttemplate="%{text:.3f}", textposition="outside", textfont=dict(size=14))
+    fig2.update_layout(height=460, yaxis_title="", xaxis_title="归一化责任度", font=dict(size=14))
     st.plotly_chart(fig2, use_container_width=True)
 
     st.dataframe(
@@ -168,27 +171,20 @@ with tab2:
     )
 
 with tab3:
-    st.subheader("供应链网络拓扑（基于公开代理映射）")
+    st.subheader("供应链网络拓扑")
     st.markdown("节点大小反映 **Shapley 责任度**。实线为单向物流，虚线为双向调拨边。")
 
-    # 手动构建坐标，形成完美的树状分层布局
     pos = {
-        # Level 1: Sources
         "N1": (0, 0.8), "N2": (0, 0.2),
-        # Level 2: Plants
         "N3": (1, 0.7), "N4": (1, 0.3),
-        # Level 3: Warehouses
         "N5": (2, 0.8), "N6": (2, 0.5), "N7": (2, 0.2),
-        # Level 4: Delivery
         "N8": (3, 0.7), "N9": (3, 0.5), "N10": (3, 0.2),
-        # Level 5: Sinks
         "N11": (4, 0.7), "N12": (4, 0.5), "N13": (4, 0.2),
     }
 
     node_dict = {n["id"]: n for n in CFG["nodes"]}
     row_dict = {row["id"]: row for row in df.to_dict("records")}
 
-    # 准备绘图的 Edge 数据
     edge_traces = []
     for edge in CFG["edges"]:
         src, dst = edge["src"], edge["dst"]
@@ -201,7 +197,8 @@ with tab3:
         is_bidir = edge.get("bidirectional", False)
         
         cap = edge["capacity"]
-        line_width = max(1.5, min(6, cap / 150))
+        # 线宽稍微加粗
+        line_width = max(2.0, min(6, cap / 150))
         line_color = "rgba(150, 150, 150, 0.5)" if not is_bidir else "rgba(255, 165, 0, 0.6)"
 
         edge_trace = go.Scatter(
@@ -218,7 +215,8 @@ with tab3:
         arrow_trace = go.Scatter(
             x=[mid_x], y=[mid_y],
             mode='markers',
-            marker=dict(symbol='triangle-right' if x1 >= x0 else 'triangle-left', size=10, color=line_color),
+            # 箭头放大
+            marker=dict(symbol='triangle-right' if x1 >= x0 else 'triangle-left', size=14, color=line_color),
             showlegend=False, hoverinfo='none'
         )
         edge_traces.append(arrow_trace)
@@ -244,7 +242,9 @@ with tab3:
         resp = r_data.get("responsibility", 0.0)
         
         node_color.append(color_map[quad])
-        size = 30 + (resp * 300)
+        
+        # 放大节点：基础大小 50，乘数系数 400
+        size = 50 + (resp * 400)
         node_size.append(size)
         node_text.append(n["name"])
         
@@ -263,21 +263,23 @@ with tab3:
         textposition="bottom center",
         hoverinfo='text',
         hovertext=node_hover,
+        # 放大节点下方文字
+        textfont=dict(size=16, color="black"),
         marker=dict(
             color=node_color,
             size=node_size,
-            line=dict(width=2, color='white')
+            line=dict(width=2.5, color='white')
         ),
         showlegend=False
     )
 
     fig_net = go.Figure(data=edge_traces + [node_trace])
     fig_net.update_layout(
-        height=650,
+        height=750, # 拉高图表给放大后的文字留空间
         plot_bgcolor="white",
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        margin=dict(l=20, r=20, t=20, b=20),
+        margin=dict(l=40, r=40, t=40, b=40),
     )
     st.plotly_chart(fig_net, use_container_width=True)
     
@@ -312,8 +314,6 @@ with tab5:
         "data_boundary": "所有容量为公开锚点/相对比例/业务先验三级精度映射",
         "all_nodes_metrics": nodes_data,
     }
-    with st.expander("查看当前系统底账（大模型唯一可见事实）"):
-        st.json(global_ctx)
 
     question = st.text_area(
         "请输入您的供应链决策问题...",
