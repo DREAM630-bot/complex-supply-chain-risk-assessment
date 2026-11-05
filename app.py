@@ -21,8 +21,6 @@ PLAYERS = [n["id"] for n in CFG["nodes"]]
 NODE_MAP = {n["id"]: n for n in CFG["nodes"]}
 WINDOW_END = CFG["meta"]["window"][1]
 
-
-# ------------------------------------------------------------------ 计算（缓存）
 @st.cache_data(show_spinner=False)
 def compute_all(n_perm: int, seed: int):
     base = eval_state(CFG)
@@ -30,6 +28,7 @@ def compute_all(n_perm: int, seed: int):
         phi_raw = shapley_mc(CFG, PLAYERS, base, n_perm, seed)
         method = "蒙特卡罗排列采样 Shapley"
     else:
+        # 13个节点，其实可以用精确枚举（8192次计算），但这里保留原方法
         phi_raw = shapley_hierarchical(CFG, base, n_perm, seed)
         method = "分层 Shapley（候选集 + 背景聚合）"
 
@@ -46,16 +45,24 @@ def compute_all(n_perm: int, seed: int):
     rows = []
     ranked = sorted(phi.items(), key=lambda x: -x[1])
     rank_map = {k: i + 1 for i, (k, _) in enumerate(ranked)}
+    
+    # 动态阈值设定：前 30% 视为高责任度；暴露度 > 0.15 视为高（因为文本量级最大就0.6）
+    resp_threshold = np.quantile(list(phi.values()), 0.70) if phi else 0
+    exp_threshold = 0.15
 
     for n in CFG["nodes"]:
         nid = n["id"]
         exp = exposure.get(nid, 0.0)
         resp = phi.get(nid, 0.0)
-        if exp >= 0.5 and resp >= 0.5:
+        
+        is_high_resp = (rank_map[nid] <= 4) or (resp >= resp_threshold)
+        is_high_exp = (exp >= exp_threshold)
+
+        if is_high_exp and is_high_resp:
             quad = "显性核心"
-        elif exp < 0.5 and resp >= 0.5:
+        elif not is_high_exp and is_high_resp:
             quad = "隐性关键"
-        elif exp >= 0.5 and resp < 0.5:
+        elif is_high_exp and not is_high_resp:
             quad = "局部扰动"
         else:
             quad = "常规节点"
@@ -82,15 +89,12 @@ def compute_all(n_perm: int, seed: int):
     df = pd.DataFrame(rows).sort_values("responsibility", ascending=False).reset_index(drop=True)
     return df, results, method
 
-
 def get_api_key() -> str:
     try:
         return st.secrets.get("DEEPSEEK_API_KEY", "")
     except Exception:
         return os.environ.get("DEEPSEEK_API_KEY", "")
 
-
-# ------------------------------------------------------------------ 侧边栏
 with st.sidebar:
     st.title("🕸️ 复杂供应链风险全景测度")
     st.caption("暴露度 — 责任度 二维交叉决策矩阵")
@@ -105,7 +109,6 @@ with st.sidebar:
 
 df, results, method = compute_all(int(n_perm), int(seed))
 
-# ------------------------------------------------------------------ 顶部指标
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("节点数", len(df))
 c2.metric("显性核心", int((df["quadrant"] == "显性核心").sum()))
@@ -116,14 +119,13 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["① 二维决策矩阵", "② 责任度归因", "③ 文本测度与证据链", "④ 敏感性分析", "⑤ 智能体问答"]
 )
 
-# ------------------------------------------------------------------ ① 矩阵
 with tab1:
     st.subheader("暴露度 — 责任度 二维交叉矩阵")
     
-    # 【优化后的绘图代码：自适应缩放 + 防止文字重叠】
+    # 修复展示：不写死 [0,1]，让坐标轴自适应
     fig = px.scatter(
         df, x="exposure", y="responsibility",
-        color="quadrant", text="name",
+        color="quadrant", text="name", 
         hover_data=["id", "role", "capacity_source", "rank"],
         color_discrete_map={
             "显性核心": "#d62728", "隐性关键": "#ff7f0e",
@@ -131,18 +133,15 @@ with tab1:
         },
         labels={"exposure": "暴露度（文本测度）", "responsibility": "责任度（Shapley 归因）"},
     )
-    fig.add_vline(x=0.5, line_dash="dash", line_color="gray")
-    fig.add_hline(y=0.5, line_dash="dash", line_color="gray")
-    fig.update_traces(
-        textposition="top center", 
-        marker=dict(size=14, line=dict(width=1, color='DarkSlateGrey'))
-    )
-    fig.update_layout(
-        height=560, 
-        legend_title="象限",
-        xaxis=dict(range=[-0.05, max(df["exposure"].max() + 0.1, 1)]),
-        yaxis=dict(range=[-0.05, max(df["responsibility"].max() + 0.1, 1)])
-    )
+    
+    # 画动态分割线，避免写死的 0.5 导致点全挤在一团
+    fig.add_vline(x=0.15, line_dash="dash", line_color="gray")
+    # Y轴分割线使用前30%分位数
+    y_thresh = df["responsibility"].quantile(0.70)
+    fig.add_hline(y=y_thresh, line_dash="dash", line_color="gray")
+    
+    fig.update_traces(textposition="top center", marker=dict(size=16))
+    fig.update_layout(height=560, legend_title="象限")
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("""
@@ -152,7 +151,6 @@ with tab1:
 - **常规节点**：常态巡检。
 """)
 
-# ------------------------------------------------------------------ ② 责任度
 with tab2:
     st.subheader("Shapley 责任度排序（Top-K）")
     top_k = st.slider("显示 Top-K", 3, len(df), min(10, len(df)))
@@ -173,7 +171,6 @@ with tab2:
         use_container_width=True, hide_index=True,
     )
 
-# ------------------------------------------------------------------ ③ 文本测度
 with tab3:
     st.subheader("多智能体文本测度：Extractor → Feedback → Revision")
     rows = []
@@ -190,7 +187,6 @@ with tab3:
     st.info("R1 为硬门禁：证据锚点必须在原文逐字存在，否则直接驳回，不进入后续规则。"
             "所有暴露度评分均可追溯至原文锚点与触发规则。")
 
-# ------------------------------------------------------------------ ④ 敏感性
 with tab4:
     st.subheader("容量敏感性扫描（代理 / 先验节点 ±20%–30%）")
     if st.button("运行敏感性扫描", type="primary"):
@@ -204,7 +200,6 @@ with tab4:
         st.line_chart(mat)
         st.caption("若核心节点排序在各扰动情形下不翻转，则责任度结论稳健。")
 
-# ------------------------------------------------------------------ ⑤ 智能体
 with tab5:
     st.subheader("DeepSeek 业务翻译官（强约束 JSON Context）")
     target = st.selectbox("选择要追问的节点",
