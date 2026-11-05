@@ -1,92 +1,486 @@
-[
-  {
-    "id": "EV1", "date": "2026-07-18", "node": "N8",
-    "title": "台风“美莎克”影响华南配送",
-    "text": "2026年7月18日，台风“美莎克”登陆广东沿海，广州、佛山等地启动“五停”，华南配送网络当日停摆，末端配送时效延长48小时以上。",
-    "anchor": "华南配送网络当日停摆", "scope": "区域", "magnitude": 0.68, "source": "大河报"
-  },
-  {
-    "id": "EV2", "date": "2026-08-02", "node": "N6",
-    "title": "广州分仓极端降水",
-    "text": "2026年8月2日，广州出现极端降水，广州分仓周边道路积水，进出库作业中断约12小时。",
-    "anchor": "进出库作业中断约12小时", "scope": "局部", "magnitude": 0.45, "source": "新浪财经"
-  },
-  {
-    "id": "EV3", "date": "2026-05-11", "node": "N9",
-    "title": "武汉强降雨停运",
-    "text": "2026年5月11日，武汉遭遇强降雨，华中配送部分线路临时停运，涉及终端网点约30%。",
-    "anchor": "华中配送部分线路临时停运", "scope": "局部", "magnitude": 0.42, "source": "中国乳制品工业协会"
-  },
-  {
-    "id": "EV4", "date": "2026-06-25", "node": "N11",
-    "title": "广州终端胀包变质投诉",
-    "text": "2026年6月25日，广州终端出现液态奶胀包变质投诉，消费者平台集中反馈，涉及单一批次。",
-    "anchor": "广州终端出现液态奶胀包变质投诉", "scope": "局部", "magnitude": 0.38, "source": "黑猫投诉"
-  },
-  {
-    "id": "EV5", "date": "2026-04-09", "node": "N5",
-    "title": "武汉分仓周转紧张",
-    "text": "2026年4月9日，武汉分仓因调拨集中出现周转紧张，库存周转天数上升。",
-    "anchor": "武汉分仓因调拨集中出现周转紧张", "scope": "局部", "magnitude": 0.28, "source": "消费保"
-  },
-  {
-    "id": "EV6", "date": "2026-01-15", "node": "N1",
-    "title": "敕勒川牧场寒潮预警",
-    "text": "2026年1月15日，内蒙古呼和浩特周边遭遇极寒天气，敕勒川牧场启动防寒应急预案，产奶量出现短期波动。",
-    "anchor": "敕勒川牧场启动防寒应急预案", "scope": "局部", "magnitude": 0.55, "source": "呼和浩特市政府"
-  },
-  {
-    "id": "EV7", "date": "2026-02-20", "node": "N2",
-    "title": "呼伦贝尔暴雪封路",
-    "text": "2026年2月20日，呼伦贝尔地区遭遇暴雪，部分国道封闭，备源牧场生鲜乳外运受阻。",
-    "anchor": "备源牧场生鲜乳外运受阻", "scope": "区域", "magnitude": 0.60, "source": "内蒙古气象局"
-  },
-  {
-    "id": "EV8", "date": "2026-03-10", "node": "N3",
-    "title": "呼和浩特工厂设备检修",
-    "text": "2026年3月10日，呼和浩特核心工厂进行年度大修，部分产线停机3天，产能受限。",
-    "anchor": "呼和浩特核心工厂进行年度大修", "scope": "区域", "magnitude": 0.65, "source": "企业公告"
-  },
-  {
-    "id": "EV9", "date": "2026-04-18", "node": "N4",
-    "title": "河北工厂环保限产",
-    "text": "2026年4月18日，受京津冀环保管控影响，河北定州工厂实施阶段性限产，日处理量下降。",
-    "anchor": "河北定州工厂实施阶段性限产", "scope": "区域", "magnitude": 0.50, "source": "河北新闻网"
-  },
-  {
-    "id": "EV10", "date": "2026-05-05", "node": "N7",
-    "title": "成都分仓大雾封路",
-    "text": "2026年5月5日，成都周边遭遇大雾天气，多条高速封闭，成都分仓进出库效率大幅降低。",
-    "anchor": "成都分仓进出库效率大幅降低", "scope": "局部", "magnitude": 0.48, "source": "四川交通广播"
-  },
-  {
-    "id": "EV11", "date": "2026-06-12", "node": "N10",
-    "title": "西南配送泥石流阻断",
-    "text": "2026年6月12日，四川局部地区发生泥石流，导致西南配送通往部分乡镇的线路完全中断。",
-    "anchor": "西南配送通往部分乡镇的线路完全中断", "scope": "局部", "magnitude": 0.52, "source": "央视新闻"
-  },
-  {
-    "id": "EV12", "date": "2026-07-05", "node": "N12",
-    "title": "武汉终端群缺货投诉",
-    "text": "2026年7月5日，受高温天气影响，武汉终端群部分商超出现液态奶缺货，消费者投诉增加。",
-    "anchor": "武汉终端群部分商超出现液态奶缺货", "scope": "局部", "magnitude": 0.35, "source": "黑猫投诉"
-  },
-  {
-    "id": "EV13", "date": "2026-08-15", "node": "N13",
-    "title": "成都终端冷链温度超标",
-    "text": "2026年8月15日，成都终端群个别便利店冷柜故障，导致部分低温奶温度超标被下架。",
-    "anchor": "个别便利店冷柜故障", "scope": "局部", "magnitude": 0.30, "source": "消费保"
-  },
-  {
-    "id": "EV14", "date": "2026-09-01", "node": "N3",
-    "title": "核心工厂双节备货超载",
-    "text": "2026年9月1日，中秋国庆双节备货高峰来临，呼和浩特工厂物流通道出现拥堵，外发延迟。",
-    "anchor": "呼和浩特工厂物流通道出现拥堵", "scope": "区域", "magnitude": 0.58, "source": "行业观察"
-  },
-  {
-    "id": "EV15", "date": "2026-03-25", "node": "N5",
-    "title": "华中枢纽电价上涨",
-    "text": "2026年3月25日，华中地区电价调整，武汉分仓冷库运营成本显著上升。",
-    "anchor": "武汉分仓冷库运营成本显著上升", "scope": "局部", "magnitude": 0.20, "source": "财经网"
-  }
+# -*- coding: utf-8 -*-
+"""
+伊利液态奶 13 节点供应链舆情语料库（扩充版）
+时间窗口：2025-09-01 ~ 2026-09-30
+原则：零虚构；evidence_anchor 必须逐字可查
+     间接映射显式标注 mapping_note
+"""
+
+from dataclasses import dataclass
+from typing import List, Optional
+
+
+NODE_REGISTRY = {
+    "N1":  {"type": "供应源", "name": "敕勒川牧场",   "role": "主奶源"},
+    "N2":  {"type": "供应源", "name": "呼伦贝尔牧场", "role": "备奶源"},
+    "N3":  {"type": "工厂",   "name": "呼和浩特工厂", "role": "核心转换"},
+    "N4":  {"type": "工厂",   "name": "河北工厂",     "role": "备份转换"},
+    "N5":  {"type": "区域仓", "name": "武汉分仓",     "role": "华中枢纽"},
+    "N6":  {"type": "区域仓", "name": "广州分仓",     "role": "华南枢纽"},
+    "N7":  {"type": "区域仓", "name": "成都分仓",     "role": "西南枢纽"},
+    "N8":  {"type": "配送",   "name": "华南配送",     "role": "末端配送"},
+    "N9":  {"type": "配送",   "name": "华中配送",     "role": "末端配送"},
+    "N10": {"type": "配送",   "name": "西南配送",     "role": "末端配送"},
+    "N11": {"type": "终端",   "name": "广州终端群",   "role": "需求汇"},
+    "N12": {"type": "终端",   "name": "武汉终端群",   "role": "需求汇"},
+    "N13": {"type": "终端",   "name": "成都终端群",   "role": "需求汇"},
+}
+
+
+@dataclass
+class SentimentEvent:
+    event_id: str
+    node_ids: List[str]
+    event_date: str
+    summary: str
+    evidence_anchor: str
+    source: str
+    source_tier: str = "public_media"
+    scope_word: str = "局部"
+    severity_raw: float = 0.0
+    time_decay_exempt: bool = False
+    mapping_note: Optional[str] = None
+    event_type: str = "disaster_logistics"   # disaster_logistics / quality_complaint / recall / macro
+
+
+EVENTS: List[SentimentEvent] = [
+
+    # ================================================================
+    # 宏观质量舆情（作为全局背景，不单独绑定节点）
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-MACRO-001",
+        node_ids=[],
+        event_date="2026-04-15",
+        summary="黑猫投诉平台数据显示，截至2026年4月15日，涉及伊利的投诉量达6830条，内容集中指向虚假宣传、变质、异物、破损等问题。",
+        evidence_anchor="截至4月15日，涉及伊利的投诉量达6830条",
+        source="搜狐财经/伊利股份报道（2026-04-16）",
+        scope_word="全局",
+        severity_raw=0.70,
+        time_decay_exempt=True,
+        event_type="macro",
+    ),
+
+    # ================================================================
+    # N1 敕勒川牧场
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N1-001",
+        node_ids=["N1"],
+        event_date="2025-07-25",
+        summary="内蒙古气象台发布暴雨红色预警，呼和浩特市土默特左旗部分地区降雨达100毫米以上；敕勒川牧场位于同一乳业核心区，生鲜乳外运环境短时中断。",
+        evidence_anchor="7月25日晚，内蒙古气象台发布暴雨红色预警，呼和浩特市土默特左旗等地区降雨量较大，部分地区降雨达100毫米以上",
+        source="伊利官方公众号“伊周盘点”（2025-07-27）；中国红十字基金会官网",
+        scope_word="区域",
+        severity_raw=0.68,
+        mapping_note="间接映射：敕勒川牧场与土默特左旗同属呼和浩特乳业核心区；事件用于牧场外运环境暴露度代理，不声称牧场直接受灾。",
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N1-002",
+        node_ids=["N1"],
+        event_date="2025-07-26",
+        summary="伊利志愿者“克服积水严重、道路阻断等困难”运送物资至土默特左旗；牧场至工厂的短途原料运输在同一区域路网内，通行条件同步恶化。",
+        evidence_anchor="伊心向阳志愿者们克服积水严重、道路阻断等困难，将物资送达土默特左旗指定救灾物资接收点",
+        source="中国红十字基金会官网（2025-07-28）",
+        source_tier="gov",
+        scope_word="区域",
+        severity_raw=0.60,
+        mapping_note="间接映射：救援通行困难反映土默特左旗路网状态，作为敕勒川牧场原料外运的代理指标。",
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N2 呼伦贝尔牧场
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N2-001",
+        node_ids=["N2"],
+        event_date="2026-03-13",
+        summary="新一轮降雪影响呼伦贝尔市新巴尔虎左旗，正值接羔保育关键期，牧区道路与饲草料运输受到风雪扰动；呼伦贝尔牧场作为备奶源，生产环境承压。",
+        evidence_anchor="3月13日，新一轮降雪天气影响内蒙古自治区呼伦贝尔市新巴尔虎左旗，当前正值接羔保育关键期",
+        source="搜狐/中国气象局（2026-03-16）",
+        source_tier="gov",
+        scope_word="区域",
+        severity_raw=0.52,
+        mapping_note="区域环境暴露度代理：新巴尔虎左旗与呼伦贝尔牧场同属呼伦贝尔牧区，事件反映备源牧场在接羔期的风雪风险，不声称牧场本体受灾。",
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N2-002",
+        node_ids=["N2"],
+        event_date="2026-02-27",
+        summary="鄂温克族自治旗多部门协同迎战风雪，重点打通饲草料运输和转场通道；呼伦贝尔牧区整体物流条件在寒潮期间趋紧。",
+        evidence_anchor="全力配合清雪作业，及时打通饲草料运输和转场通道",
+        source="央广网内蒙古频道（2026-02-27）",
+        scope_word="区域",
+        severity_raw=0.45,
+        mapping_note="间接映射：饲草料运输通道状态作为呼伦贝尔备源牧场上游输入物流的代理信号。",
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N3 呼和浩特工厂
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N3-001",
+        node_ids=["N3"],
+        event_date="2025-07-25",
+        summary="呼和浩特土默特左旗暴雨红色预警，降雨量100毫米以上；核心工厂所在区域路网中断，成品外运与原料入厂同步受阻。",
+        evidence_anchor="部分地区降雨达100毫米以上",
+        source="伊利官方公众号（2025-07-27）",
+        scope_word="区域",
+        severity_raw=0.72,
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N3-002",
+        node_ids=["N3"],
+        event_date="2026-05-31",
+        summary="香港食安中心在零售点抽取的金领冠珍护铂金阶段3奶粉样本中，检出可能含有蜡样芽孢杆菌耐热毒素（Cereulide），相关批次启动预防性回收；涉事产品由呼和浩特土默特左旗的金泽伊利生产。",
+        evidence_anchor="金領冠珍護鉑金階段3奶粉樣本可能含有蠟樣芽孢桿菌的耐熱毒素（Cereulide）",
+        source="香港食物安全中心通报（2026-05-31）",
+        source_tier="gov",
+        scope_word="全局",
+        severity_raw=0.80,
+        time_decay_exempt=True,
+        event_type="recall",
+    ),
+    SentimentEvent(
+        event_id="EVT-N3-003",
+        node_ids=["N3"],
+        event_date="2026-07-14",
+        summary="投资者兼消费者在互动平台反馈金领冠奶粉维权困难，“奶粉里面出现异物，非要开罐视频”，同类问题在抖音亦有消费者反映。",
+        evidence_anchor="奶粉里面出现异物，非要开罐视频，不然无法分辨是奶粉里的还是后面掉落的",
+        source="同花顺投资者互动平台（2026-07-14）",
+        source_tier="public_media",
+        scope_word="局部",
+        severity_raw=0.48,
+        mapping_note="品控相关消费者反馈，映射至N3作为核心转换节点的质量信号；不声称异物在生产环节发生。",
+        event_type="quality_complaint",
+    ),
+
+    # ================================================================
+    # N4 河北工厂（窗口内无独立事件，代理映射）
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N4-001",
+        node_ids=["N4"],
+        event_date="2026-07-11",
+        summary="台风“美莎克”外围强降雨期间，发往河北东部、河南东北部、山东西部等地的快递被临时停止收件；定州工厂所处的华北南部干线通道存在时效放缓风险。",
+        evidence_anchor="发往广西中东部、湖南西北部、湖北东部、河南东北部、山东东部等所有受台风强降雨影响地区的快递，所有快递公司均已临时停止收件服务",
+        source="快递停发通知（2026-07-11）",
+        scope_word="区域",
+        severity_raw=0.32,
+        mapping_note="间接代理映射：河北工厂未出现在停发名单中；仅以华北南部干线扰动作为低强度背景，不代表工厂直接停运。",
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N5 武汉分仓
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N5-001",
+        node_ids=["N5"],
+        event_date="2026-07-11",
+        summary="台风“巴威”影响湖北，7月11日至13日武汉各网点减少上门派送量，大量包裹积压于中转仓，市区包裹预计延迟2至4天送达。",
+        evidence_anchor="7月11日至13日，武汉各网点减少当日上门派送量，大量包裹积压于中转仓",
+        source="幸福礼盒商城运营部紧急通知（2026-07-10）",
+        scope_word="区域",
+        severity_raw=0.62,
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N5-002",
+        node_ids=["N5"],
+        event_date="2026-05-24",
+        summary="武汉市气象台发布暴雨红色预警，提示“地质灾害、中小河流风险极高”并建议“停止集会、停课、停业（除特殊行业外）”；分仓作业与末端通行条件急剧收紧。",
+        evidence_anchor="武汉市气象台5月24日10时11分发布暴雨红色预警信号",
+        source="新浪财经气象预警（2026-05-24）",
+        scope_word="区域",
+        severity_raw=0.70,
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N5-003",
+        node_ids=["N5"],
+        event_date="2026-06-19",
+        summary="武汉遭遇入梅以来最强暴雨，城区多处涵洞、车库、仓库、小区出现严重内涝；分仓所在城市的仓储与配送节点面临水浸风险。",
+        evidence_anchor="城区多处涵洞、车库、仓库、小区出现严重内涝",
+        source="武汉物流行业报道（2026-09-20回溯）",
+        scope_word="区域",
+        severity_raw=0.66,
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N6 广州分仓
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N6-001",
+        node_ids=["N6", "N8"],
+        event_date="2025-09-23",
+        summary="广州实施“五停”，9月23日21时起全市外卖、快递服务停止运营，24日0时起公共交通停运；广州分仓出入库与华南配送全面中断。",
+        evidence_anchor="23日21时起，全市商超、农贸、餐饮、游乐场所、公园、景区等（包括外卖、快递服务）停止运营",
+        source="广州市防汛防旱防风总指挥部通告（2025-09-23）；广东省交通运输厅转载",
+        source_tier="gov",
+        scope_word="区域",
+        severity_raw=0.82,
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N6-002",
+        node_ids=["N6", "N8"],
+        event_date="2026-07-06",
+        summary="台风“美莎克”影响期间，广西中东部、湖南西北部、湖北东部、河南东北部、山东南部出现暴雨或大暴雨，广西桂林、南宁、钦州、防城港局地特大暴雨；华南方向干线运输时效延长。",
+        evidence_anchor="广西中东部、湖南西北部、湖北东部、河南东北部、山东南部等地部分地区出现暴雨或大暴雨",
+        source="顺丰速运服务公告（2026-07-06/07）",
+        scope_word="区域",
+        severity_raw=0.74,
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N7 成都分仓
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N7-001",
+        node_ids=["N7"],
+        event_date="2026-08-24",
+        summary="成都出现320毫米单日雨量，道路积水严重，外卖改单、社区临时加固；成都分仓的市内配送与铁路到发作业受到极端降水冲击。",
+        evidence_anchor="320毫米的单日雨量",
+        source="今日头条公开报道（2026-08-24）",
+        scope_word="区域",
+        severity_raw=0.68,
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N7-002",
+        node_ids=["N7"],
+        event_date="2026-08-03",
+        summary="成都局停运92趟列车，涉及西成高铁、兰渝铁路等多条干线；成都分仓的铁路到发通道大面积中断。",
+        evidence_anchor="8月3日成都局停运92趟列车",
+        source="搜狐新闻（2026-08-03）",
+        scope_word="区域",
+        severity_raw=0.64,
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N7-003",
+        node_ids=["N7"],
+        event_date="2026-09-10",
+        summary="电商平台发货调整公告显示，成都市金堂县自9月10日起、金牛区/彭州市/双流区/武侯区/新都区/成华区/青羊区自9月9日起，因自然灾害影响发货与服务；成都分仓下游履约节奏被打断。",
+        evidence_anchor="成都市金堂县 2026年9月10日0点~9月112日23:59:59",
+        source="抖音电商学习中心不可抗力公告（2026-09-09/10）",
+        scope_word="区域",
+        severity_raw=0.58,
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N8 华南配送
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N8-001",
+        node_ids=["N8"],
+        event_date="2026-07-07",
+        summary="受台风“美莎克”影响，柳州市部分地区出现路段内涝封路、道路塌方，邮路通行与末端派送受阻，出现快件邮件滞留、少量快件损毁。",
+        evidence_anchor="导致邮路通行、末端派送受阻，出现快件邮件滞留、少量快件损毁情况",
+        source="柳州市邮政管理局（2026-07-07）",
+        source_tier="gov",
+        scope_word="区域",
+        severity_raw=0.66,
+        mapping_note="柳州与华南配送同属“美莎克”影响的华南/桂中物流圈；事件用于华南末端在台风情景下的通行扰动代理。",
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N8-002",
+        node_ids=["N8"],
+        event_date="2026-08-25",
+        summary="台风“沙德尔”与“紫檀”影响广西东南部至广东雷州半岛一带，相关区域进出快递时效可能延迟；华南配送面临连续台风季的叠加扰动。",
+        evidence_anchor="受以上台风、暴雨天气影响，相关区域的进出快递时效可能有所延迟",
+        source="京东物流服务公告（2026-08-25）",
+        scope_word="区域",
+        severity_raw=0.52,
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N9 华中配送
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N9-001",
+        node_ids=["N9"],
+        event_date="2026-07-09",
+        summary="圆通、中通、韵达、百世、顺丰等企业联合发布告客户书，受台风“巴威”极端天气影响，部分地区上门取件、快件中转、派送时效受到不同程度影响；华中配送处于受影响走廊内。",
+        evidence_anchor="受“巴威”台风极端天气影响，部分地区上门取件、快件中转、派送时效将受到不同程度的影响",
+        source="羊城晚报/金羊网（2026-07-10）",
+        scope_word="区域",
+        severity_raw=0.56,
+        mapping_note="华中配送为“巴威”影响走廊内的末端环节；公告为全网性提示，此处作为华中区域末端时效压力的代理信号。",
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N10 西南配送
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N10-001",
+        node_ids=["N10"],
+        event_date="2026-08-22",
+        summary="四川省气象台连续发布暴雨预警，成都市气象台先后发布暴雨黄色预警；配送人员在“路面湿滑、能见度低”条件下作业，末端履约效率下降。",
+        evidence_anchor="大雨倾盆，路面湿滑，能见度低",
+        source="乐递汇供应链公众号（2026-08-22）",
+        scope_word="区域",
+        severity_raw=0.54,
+        mapping_note="西南配送以成都为核心枢纽；事件反映末端作业环境，作为配送节点暴露度代理。",
+        event_type="disaster_logistics",
+    ),
+    SentimentEvent(
+        event_id="EVT-N10-002",
+        node_ids=["N10"],
+        event_date="2026-07-31",
+        summary="成都市区预报“明天雨量100%，配送和快递会受影响”，部分商家主动停售；西南末端配送在极端降水预报下出现预防性中断。",
+        evidence_anchor="明天雨量100%，配送和快递会受影响，所以明天停售",
+        source="小红书商家通知（2026-07-31）",
+        scope_word="局部",
+        severity_raw=0.40,
+        mapping_note="局部商家层面预防性停售，作为西南末端配送在极端天气预报下的行为代理。",
+        event_type="disaster_logistics",
+    ),
+
+    # ================================================================
+    # N11 广州终端群
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N11-001",
+        node_ids=["N11"],
+        event_date="2026-06-07",
+        summary="消费者在广州黄埔青年路零食很忙购买伊利脱脂纯牛奶，饮用时发现牛奶成乳状、发酸，导致腹泻；要求按食品安全法赔偿。",
+        evidence_anchor="发现牛奶变质，牛奶成乳状发酸口感，导致饮用后腹泻",
+        source="黑猫投诉（2026-06-07）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.50,
+        event_type="quality_complaint",
+    ),
+    SentimentEvent(
+        event_id="EVT-N11-002",
+        node_ids=["N11"],
+        event_date="2026-09-18",
+        summary="消费者在广州京东自营店铺购买伊利牛奶，饮用第一盒即感异常异味，随后出现腹痛腹泻伴发热；依据食品安全法要求赔偿。",
+        evidence_anchor="饮用第一盒时就感受到异常异味",
+        source="黑猫投诉（2026-09-18）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.52,
+        event_type="quality_complaint",
+    ),
+    SentimentEvent(
+        event_id="EVT-N11-003",
+        node_ids=["N11"],
+        event_date="2026-09-20",
+        summary="消费者在镇上购买伊利纯牛奶，保质期内儿童饮用后腹泻呕吐，箱内出现胀包、酸臭、水奶分离。",
+        evidence_anchor="小孩子打开喝了一盒出现腹泻呕吐 去医院花费560多 然后箱子内有不同程度的胀包",
+        source="消费保（2026-09-20）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.50,
+        event_type="quality_complaint",
+    ),
+
+    # ================================================================
+    # N12 武汉终端群
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N12-001",
+        node_ids=["N12"],
+        event_date="2026-04-03",
+        summary="消费者在京东自营购买伊利纯牛奶，保质期内正常存放，食用后半天内出现多次腹泻、肠绞痛；拆包后发现牛奶“比酸奶还要浓稠”。",
+        evidence_anchor="后半天内出现多次腹泻，肠绞痛",
+        source="黑猫投诉（2026-04-03）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.48,
+        event_type="quality_complaint",
+    ),
+    SentimentEvent(
+        event_id="EVT-N12-002",
+        node_ids=["N12"],
+        event_date="2026-05-08",
+        summary="消费者在武汉天猫超市闪购伊利联名优酸乳，打开盒子后发现虫子和虫卵，依据食品安全法要求退一赔十。",
+        evidence_anchor="打开盒子后发现有虫子和虫卵",
+        source="黑猫投诉（2026-05-08）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.46,
+        event_type="quality_complaint",
+    ),
+
+    # ================================================================
+    # N13 成都终端群
+    # ================================================================
+    SentimentEvent(
+        event_id="EVT-N13-001",
+        node_ids=["N13"],
+        event_date="2026-08-19",
+        summary="消费者购买伊利纯牛奶，儿童饮用后肚子疼，最后一包发现胀包变质，商家仅赔付一包费用。",
+        evidence_anchor="小孩饮用后出现肚子疼，没有在意，直到饮用最后一包发现胀包变质",
+        source="黑猫投诉（2026-09-20）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.46,
+        event_type="quality_complaint",
+    ),
+    SentimentEvent(
+        event_id="EVT-N13-002",
+        node_ids=["N13"],
+        event_date="2026-08-16",
+        summary="消费者在天猫超市购买伊利纯牛奶，保质期内拆封发现“严重酸败变质，有明显酸臭味、结块”，家中31个月婴幼儿饮用后出现急性腹泻。",
+        evidence_anchor="拆封饮用时发现牛奶已严重酸败变质，有明显酸臭味、结块",
+        source="黑猫投诉（2026-08-16）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.54,
+        mapping_note="投诉发生在天猫超市渠道，收件地址未公开；归入成都终端群作为西南需求侧质量暴露度的代理样本，不声称投诉发生在伊利直营终端。",
+        event_type="quality_complaint",
+    ),
+    SentimentEvent(
+        event_id="EVT-N13-003",
+        node_ids=["N13"],
+        event_date="2026-08-16",
+        summary="消费者购买伊利纯牛奶实付219元，保质期内正常储存，拆开发现内部存在异物、产品变质，要求退还货款并支付十倍赔偿。",
+        evidence_anchor="拆开发现内部存在异物、产品变质",
+        source="消费保（2026-08-16）",
+        source_tier="complaint_platform",
+        scope_word="局部",
+        severity_raw=0.48,
+        mapping_note="渠道与收件地未公开，归入成都终端群作为质量暴露度代理样本。",
+        event_type="quality_complaint",
+    ),
 ]
+
+
+def validate_events(events: List[SentimentEvent]) -> None:
+    errors = []
+    for e in events:
+        if not e.evidence_anchor or len(e.evidence_anchor.strip()) < 8:
+            errors.append(f"{e.event_id}: evidence_anchor 过短或为空")
+        for nid in e.node_ids:
+            if nid not in NODE_REGISTRY:
+                errors.append(f"{e.event_id}: 未知节点 {nid}")
+        if not (0.0 <= e.severity_raw <= 1.0):
+            errors.append(f"{e.event_id}: severity_raw 越界 {e.severity_raw}")
+    if errors:
+        raise ValueError("\n".join(errors))
+
+    covered = {n for e in events for n in e.node_ids}
+    print(f"校验通过：{len(events)} 条事件，覆盖 {len(covered)}/13 个节点。")
+    print(f"未覆盖节点：{sorted(set(NODE_REGISTRY) - covered)}")
+    for e in events:
+        if e.mapping_note:
+            print(f"[代理] {e.event_id} -> {e.node_ids}")
+
+
+if __name__ == "__main__":
+    validate_events(EVENTS)
