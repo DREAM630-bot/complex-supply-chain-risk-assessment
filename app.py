@@ -112,35 +112,50 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["① 二维决策矩阵", "② 责任度归因", "③ 供应链网络拓扑", "④ 敏感性分析", "⑤ 智能体问答"]
 )
 
+# ------------------------------------------------------------------ ① 二维矩阵
 with tab1:
     st.subheader("暴露度 — 责任度 二维交叉矩阵")
-    fig = px.scatter(
-        df, x="exposure", y="responsibility",
-        color="quadrant", text="name", 
-        hover_data=["id", "role", "capacity_source", "rank"],
-        color_discrete_map={
-            "显性核心": "#d62728", "隐性关键": "#ff7f0e",
-            "局部扰动": "#1f77b4", "常规节点": "#7f7f7f",
-        },
-        labels={"exposure": "暴露度（文本测度）", "responsibility": "责任度（Shapley 归因）"},
-    )
+    
+    quad_color = {
+        "显性核心": "#d62728", "隐性关键": "#ff7f0e",
+        "局部扰动": "#1f77b4", "常规节点": "#7f7f7f",
+    }
+    
+    fig = go.Figure()
+    # 按象限分别画，防止密集点完全重叠且方便控制图例
+    for quad in ["显性核心", "隐性关键", "局部扰动", "常规节点"]:
+        sub_df = df[df["quadrant"] == quad]
+        if sub_df.empty: continue
+        
+        fig.add_trace(go.Scatter(
+            x=sub_df["exposure"],
+            y=sub_df["responsibility"],
+            mode='markers+text',
+            name=quad,
+            text=sub_df["name"],
+            textposition='top center',
+            textfont=dict(size=14, color="black"),
+            hoverinfo='text',
+            hovertext=[
+                f"<b>{r['name']}</b><br>暴露度: {r['exposure']}<br>责任度: {r['responsibility']}<br>排名: {r['rank']}"
+                for _, r in sub_df.iterrows()
+            ],
+            marker=dict(size=20, color=quad_color[quad], line=dict(width=2, color='white'))
+        ))
+
+    # 动态十字分割线
     fig.add_vline(x=0.15, line_dash="dash", line_color="gray")
     y_thresh = df["responsibility"].quantile(0.70)
     fig.add_hline(y=y_thresh, line_dash="dash", line_color="gray")
     
-    # 放大散点和文字标签
-    fig.update_traces(
-        textposition="top center", 
-        marker=dict(size=24, line=dict(width=2, color='white')),
-        textfont=dict(size=15, color='black')
-    )
     fig.update_layout(
-        height=650, margin=dict(l=40, r=40, t=40, b=40), legend_title="象限",
+        height=700, margin=dict(l=40, r=40, t=40, b=40), legend_title="象限",
         plot_bgcolor="rgba(240,242,246,0.5)",
-        font=dict(size=14)  # 放大坐标轴字体
+        font=dict(size=14)
     )
-    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='Lightgray')
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='Lightgray')
+    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='Lightgray', title="暴露度（文本测度）")
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='Lightgray', title="责任度（Shapley 归因）")
+    
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("""
@@ -150,16 +165,14 @@ with tab1:
 - **常规节点**：常态巡检。
 """)
 
+# ------------------------------------------------------------------ ② 责任度
 with tab2:
     st.subheader("Shapley 责任度排序（Top-K）")
     top_k = st.slider("显示 Top-K", 3, len(df), min(10, len(df)))
     d = df.head(top_k).iloc[::-1]
     fig2 = px.bar(d, x="responsibility", y="name", orientation="h",
                   color="quadrant", text="responsibility",
-                  color_discrete_map={
-                      "显性核心": "#d62728", "隐性关键": "#ff7f0e",
-                      "局部扰动": "#1f77b4", "常规节点": "#7f7f7f",
-                  })
+                  color_discrete_map=quad_color)
     fig2.update_traces(texttemplate="%{text:.3f}", textposition="outside", textfont=dict(size=14))
     fig2.update_layout(height=460, yaxis_title="", xaxis_title="归一化责任度", font=dict(size=14))
     st.plotly_chart(fig2, use_container_width=True)
@@ -170,6 +183,7 @@ with tab2:
         use_container_width=True, hide_index=True,
     )
 
+# ------------------------------------------------------------------ ③ 供应链网络拓扑
 with tab3:
     st.subheader("供应链网络拓扑")
     st.markdown("节点大小反映 **Shapley 责任度**。实线为单向物流，虚线为双向调拨边。")
@@ -185,106 +199,98 @@ with tab3:
     node_dict = {n["id"]: n for n in CFG["nodes"]}
     row_dict = {row["id"]: row for row in df.to_dict("records")}
 
+    # 角色与颜色映射 (为图例准备)
+    role_info = {
+        "source": {"name": "供应源 (牧场)", "color": "#9b59b6"},     # 紫
+        "plant": {"name": "工厂 (核心/备份)", "color": "#e74c3c"},  # 红
+        "warehouse": {"name": "区域仓 (分仓)", "color": "#3498db"}, # 蓝
+        "delivery": {"name": "末端配送", "color": "#f1c40f"},       # 黄
+        "sink": {"name": "需求汇 (终端)", "color": "#2ecc71"}       # 绿
+    }
+
     edge_traces = []
     for edge in CFG["edges"]:
         src, dst = edge["src"], edge["dst"]
-        if src not in pos or dst not in pos:
-            continue
+        if src not in pos or dst not in pos: continue
         
         x0, y0 = pos[src]
         x1, y1 = pos[dst]
-        
         is_bidir = edge.get("bidirectional", False)
-        
         cap = edge["capacity"]
-        # 线宽稍微加粗
+        
         line_width = max(2.0, min(6, cap / 150))
         line_color = "rgba(150, 150, 150, 0.5)" if not is_bidir else "rgba(255, 165, 0, 0.6)"
 
-        edge_trace = go.Scatter(
+        edge_traces.append(go.Scatter(
             x=[x0, x1], y=[y0, y1],
             line=dict(width=line_width, color=line_color, dash='dot' if is_bidir else 'solid'),
             hoverinfo='text',
             text=f"{src} → {dst}<br>容量: {cap}<br>模式: {edge.get('mode', 'road')}",
-            mode='lines',
-            showlegend=False
-        )
-        edge_traces.append(edge_trace)
+            mode='lines', showlegend=False
+        ))
         
         mid_x, mid_y = (x0 + x1) / 2, (y0 + y1) / 2
-        arrow_trace = go.Scatter(
-            x=[mid_x], y=[mid_y],
-            mode='markers',
-            # 箭头放大
+        edge_traces.append(go.Scatter(
+            x=[mid_x], y=[mid_y], mode='markers',
             marker=dict(symbol='triangle-right' if x1 >= x0 else 'triangle-left', size=14, color=line_color),
             showlegend=False, hoverinfo='none'
-        )
-        edge_traces.append(arrow_trace)
+        ))
 
-    node_x, node_y, node_text, node_color, node_size, node_hover = [], [], [], [], [], []
-    
-    color_map = {
-        "显性核心": "#d62728", # 红
-        "隐性关键": "#ff7f0e", # 橙
-        "局部扰动": "#1f77b4", # 蓝
-        "常规节点": "#7f7f7f", # 灰
-    }
-
+    # 按角色画节点 (自动生成图例)
+    node_traces = {}
     for nid, n in node_dict.items():
-        if nid not in pos:
-            continue
-        x, y = pos[nid]
-        node_x.append(x)
-        node_y.append(y)
+        if nid not in pos: continue
+        role = n["type"]
+        if role not in node_traces: node_traces[role] = []
         
+        x, y = pos[nid]
         r_data = row_dict.get(nid, {})
         quad = r_data.get("quadrant", "常规节点")
         resp = r_data.get("responsibility", 0.0)
         
-        node_color.append(color_map[quad])
-        
-        # 放大节点：基础大小 50，乘数系数 400
+        # 放大节点
         size = 50 + (resp * 400)
-        node_size.append(size)
-        node_text.append(n["name"])
         
         hover = f"<b>{n['name']} ({nid})</b><br>" \
-                f"类型: {n['role']}<br>" \
+                f"职能: {n['role']}<br>" \
                 f"象限: {quad}<br>" \
                 f"责任度: {resp:.4f} (排名 {r_data.get('rank', '-')})<br>" \
-                f"暴露度: {r_data.get('exposure', 0.0):.4f}<br>" \
-                f"产能上限: {n['capacity']}"
-        node_hover.append(hover)
+                f"暴露度: {r_data.get('exposure', 0.0):.4f}"
+        
+        node_traces[role].append(go.Scatter(
+            x=[x], y=[y], mode='markers+text',
+            name=role_info.get(role, {"name": "未知"})["name"],
+            text=[n["name"]],
+            textposition="bottom center",
+            textfont=dict(size=16, color="black"),
+            hoverinfo='text', hovertext=[hover],
+            marker=dict(size=size, color=role_info.get(role, {"color": "gray"})["color"], line=dict(width=2, color='white')),
+            showlegend=True
+        ))
 
-    node_trace = go.Scatter(
-        x=node_x, y=node_y,
-        mode='markers+text',
-        text=node_text,
-        textposition="bottom center",
-        hoverinfo='text',
-        hovertext=node_hover,
-        # 放大节点下方文字
-        textfont=dict(size=16, color="black"),
-        marker=dict(
-            color=node_color,
-            size=node_size,
-            line=dict(width=2.5, color='white')
-        ),
-        showlegend=False
-    )
+    fig_net = go.Figure()
+    # 添加边
+    for t in edge_traces: fig_net.add_trace(t)
+    # 添加节点并去重图例
+    seen_roles = set()
+    for role, traces in node_traces.items():
+        for i, t in enumerate(traces):
+            # 同一个角色只显示一次图例
+            t.showlegend = (i == 0)
+            fig_net.add_trace(t)
 
-    fig_net = go.Figure(data=edge_traces + [node_trace])
     fig_net.update_layout(
-        height=750, # 拉高图表给放大后的文字留空间
+        height=750,
         plot_bgcolor="white",
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         margin=dict(l=40, r=40, t=40, b=40),
+        legend_title="节点角色"
     )
     st.plotly_chart(fig_net, use_container_width=True)
-    
     st.info("图形说明：节点越大说明该节点被移除后对全局供应链破坏力越强。橙色虚线表示仓库之间的双向调拨路径。")
 
+# ------------------------------------------------------------------ ④ 敏感性分析
 with tab4:
     st.subheader("容量敏感性扫描（代理 / 先验节点 ±20%–30%）")
     id_to_name = {n["id"]: n["name"] for n in CFG["nodes"]}
@@ -299,6 +305,7 @@ with tab4:
         st.line_chart(mat)
         st.caption("若核心节点排序在各扰动情形下不翻转，则责任度结论稳健。")
 
+# ------------------------------------------------------------------ ⑤ 智能问答
 with tab5:
     st.subheader("供应链风险智能问答")
     st.markdown("""
