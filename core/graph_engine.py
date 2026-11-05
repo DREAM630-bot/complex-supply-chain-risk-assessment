@@ -60,10 +60,9 @@ def eval_state(cfg: dict, disabled=(), cap_scale=None) -> dict:
         if flow > 1e-6:
             reach += float(w)
 
-    # 修改：割集脆弱性应该用最小割的容量来算，不能用边数
+    # 割集脆弱性：用最小割容量与当前最大流的比值衡量
     try:
         min_cut_val, (side_s, side_t) = nx.minimum_cut(G, "__S", "__T")
-        # 用最小割的容量和当前最大流的比值来衡量脆弱性
         fragility = 1.0 / (1.0 + min_cut_val / max(total, 1e-9))
     except Exception:
         fragility = 1.0
@@ -78,9 +77,8 @@ def value_function(cfg: dict, base: dict, disabled) -> float:
     if base["weighted"] > 1e-9:
         flow_loss = (base["weighted"] - st["weighted"]) / base["weighted"]
     
-    # 修改：可达性下降必须基于基准状态的比例，而不是绝对 1.0
+    # 修复：基于基准状态的比例
     reach_loss = max(0.0, (base["reach"] - st["reach"]) / max(base["reach"], 1e-9))
-    
     frag_gain = max(0.0, st["fragility"] - base["fragility"])
 
     v = p["flow"] * flow_loss + p["reach"] * reach_loss + p["cut"] * frag_gain
