@@ -86,10 +86,18 @@ def value_function(cfg: dict, base: dict, disabled) -> float:
     st = eval_state(cfg, disabled)
     p = cfg.get("penalty", {"flow": 0.65, "reach": 0.20, "cut": 0.15})
 
+    # 计算全网总需求权重，防止 1.0 - reach 变成大负数
+    total_demand = sum(float(w) for w in cfg["demand_weight"].values())
+    
     flow_loss = 0.0
     if base["weighted"] > 1e-9:
         flow_loss = (base["weighted"] - st["weighted"]) / base["weighted"]
-    reach_loss = 1.0 - st["reach"]
+        
+    reach_loss = 0.0
+    if total_demand > 1e-9:
+        # 修复：用未满足的需求权重占总需求的比例
+        reach_loss = (total_demand - st["reach"]) / total_demand
+        
     frag_gain = max(0.0, st["fragility"] - base["fragility"])
 
     v = p["flow"] * flow_loss + p["reach"] * reach_loss + p["cut"] * frag_gain
@@ -204,10 +212,16 @@ def shapley_hierarchical(cfg, base, n_perm=300, seed=42, top_k=6) -> dict:
 
 
 def normalize_phi(phi: dict) -> dict:
-    s = sum(abs(v) for v in phi.values())
-    if s < 1e-12:
+    """
+    修复：不再除以总和，而是除以最大值（缩放至 1.0）。
+    这样最核心的节点责任度就是 1.0，其他节点按比例缩小，图表散点就能拉开差距。
+    """
+    if not phi:
+        return phi
+    max_val = max(abs(v) for v in phi.values())
+    if max_val < 1e-12:
         return {k: 0.0 for k in phi}
-    return {k: v / s for k, v in phi.items()}
+    return {k: v / max_val for k, v in phi.items()}
 
 
 # ---------------------------------------------------------------- 敏感性
