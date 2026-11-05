@@ -19,18 +19,28 @@ def _norm(s: str) -> str:
 
 def extractor(event: dict) -> dict:
     """规则版抽取器：产出 evidence_anchor / scope_word / severity_raw。"""
-    text = event.get("text", "")
-    anchor = event.get("anchor") or text[: min(30, len(text))]
+    # 兼容处理：把 events.json 里的字段映射到内部字典
+    text = event.get("summary", "") # 使用 summary 作为原文上下文
+    
+    # 锚点：优先用 JSON 里的 evidence_anchor，如果没有则截取正文
+    anchor = event.get("evidence_anchor", "")
+    if not anchor and text:
+        anchor = text[: min(30, len(text))]
+        
+    # 节点：JSON 里是 node_ids 列表，这里统一转为列表
+    nodes = event.get("node_ids") or [event.get("node")]
+    
     return {
-        "id": event["id"],
-        "node": event["node"],
-        "date": event["date"],
+        "id": event.get("event_id") or event.get("id", "UNKNOWN"),
+        "node": nodes,  # 注意：这里保留了列表形式，支持一对多
+        "date": event.get("event_date") or event.get("date", "2026-01-01"),
         "title": event.get("title", ""),
         "evidence_anchor": anchor,
-        "scope_word": event.get("scope", "局部"),
-        "severity_raw": float(event.get("magnitude", 0.3)),
+        "scope_word": event.get("scope_word") or event.get("scope", "局部"),
+        "severity_raw": float(event.get("severity_raw") or event.get("magnitude", 0.3)),
         "source": event.get("source", "公开报道"),
-        "_text": text,
+        "time_decay_exempt": event.get("time_decay_exempt", False),
+        "_text": text + anchor, # 将 summary 和 anchor 拼接作为校验文本
     }
 
 
@@ -55,19 +65,22 @@ def feedback(ext: dict, window_end: str) -> dict:
     else:
         log.append(f"R2 PASS：{ext['scope_word']}上限 {cap}")
 
-    # R3 时效衰减（> 6 个月扣分，结构性风险豁免）
-    try:
-        d = datetime.strptime(ext["date"], "%Y-%m-%d")
-        w = datetime.strptime(window_end, "%Y-%m-%d")
-        months = (w.year - d.year) * 12 + (w.month - d.month)
-        if months > 6:
-            delta = -0.20 if months > 9 else -0.10
-            log.append(f"R3 触发：距窗口终点 {months} 个月，{delta:+.2f}")
-            score += delta
-        else:
-            log.append("R3 PASS：窗口内 6 个月时效有效")
-    except Exception:
-        log.append("R3 SKIP：日期解析失败")
+    # R3 时效衰减（> 6 个月扣分）
+    if ext.get("time_decay_exempt"):
+        log.append("R3 SKIP：结构性风险豁免时效衰减")
+    else:
+        try:
+            d = datetime.strptime(ext["date"], "%Y-%m-%d")
+            w = datetime.strptime(window_end, "%Y-%m-%d")
+            months = (w.year - d.year) * 12 + (w.month - d.month)
+            if months > 6:
+                delta = -0.20 if months > 9 else -0.10
+                log.append(f"R3 触发：距窗口终点 {months} 个月，{delta:+.2f}")
+                score += delta
+            else:
+                log.append("R3 PASS：窗口内 6 个月时效有效")
+        except Exception:
+            log.append("R3 SKIP：日期解析失败")
 
     # R4 单因子一致性
     nums = re.findall(r"\d+(?:\.\d+)?", text)
@@ -103,11 +116,20 @@ def run_pipeline(events: list, window_end: str) -> list:
 
 
 def node_exposure(results: list) -> dict:
-    """节点暴露度 = 概率并集 1 - Π(1 - s_i)。"""
+    """节点暴露度 = 概率并集 1 - Π(1 - s_i)。支持多节点事件。"""
     exp = {}
     for r in results:
         if r.get("rejected") or r.get("severity_final") is None:
             continue
-        n = r["node"]
-        exp[n] = 1.0 - (1.0 - exp.get(n, 0.0)) * (1.0 - r["severity_final"])
+        
+        # 兼容处理：把单个节点转成列表，或者遍历多个节点
+        nodes = r["node"]
+        if not isinstance(nodes, list):
+            nodes = [nodes]
+            
+        for n in nodes:
+            if not n: continue
+            # 概率并集公式
+            exp[n] = 1.0 - (1.0 - exp.get(n, 0.0)) * (1.0 - r["severity_final"])
+            
     return exp
