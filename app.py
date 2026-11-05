@@ -119,21 +119,30 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
 # ------------------------------------------------------------------ ① 矩阵
 with tab1:
     st.subheader("暴露度 — 责任度 二维交叉矩阵")
+    
+    # 【优化后的绘图代码：自适应缩放 + 防止文字重叠】
     fig = px.scatter(
         df, x="exposure", y="responsibility",
-        color="quadrant", text="name", size=[0.06] * len(df),
+        color="quadrant", text="name",
         hover_data=["id", "role", "capacity_source", "rank"],
         color_discrete_map={
             "显性核心": "#d62728", "隐性关键": "#ff7f0e",
             "局部扰动": "#1f77b4", "常规节点": "#7f7f7f",
         },
         labels={"exposure": "暴露度（文本测度）", "responsibility": "责任度（Shapley 归因）"},
-        range_x=[0, 1], range_y=[0, 1],
     )
     fig.add_vline(x=0.5, line_dash="dash", line_color="gray")
     fig.add_hline(y=0.5, line_dash="dash", line_color="gray")
-    fig.update_traces(textposition="top center", marker=dict(size=16))
-    fig.update_layout(height=560, legend_title="象限")
+    fig.update_traces(
+        textposition="top center", 
+        marker=dict(size=14, line=dict(width=1, color='DarkSlateGrey'))
+    )
+    fig.update_layout(
+        height=560, 
+        legend_title="象限",
+        xaxis=dict(range=[-0.05, max(df["exposure"].max() + 0.1, 1)]),
+        yaxis=dict(range=[-0.05, max(df["responsibility"].max() + 0.1, 1)])
+    )
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("""
