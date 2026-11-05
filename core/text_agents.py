@@ -20,7 +20,7 @@ def _norm(s: str) -> str:
 def extractor(event: dict) -> dict:
     """规则版抽取器：产出 evidence_anchor / scope_word / severity_raw。"""
     # 兼容处理：把 events.json 里的字段映射到内部字典
-    text = event.get("summary", "") # 使用 summary 作为原文上下文
+    text = event.get("summary", "")  # 使用 summary 作为原文上下文
     
     # 锚点：优先用 JSON 里的 evidence_anchor，如果没有则截取正文
     anchor = event.get("evidence_anchor", "")
@@ -34,13 +34,13 @@ def extractor(event: dict) -> dict:
         "id": event.get("event_id") or event.get("id", "UNKNOWN"),
         "node": nodes,  # 注意：这里保留了列表形式，支持一对多
         "date": event.get("event_date") or event.get("date", "2026-01-01"),
-        "title": event.get("title", ""),
+        "title": event.get("event_type", "事件"), # 用 event_type 作标题
         "evidence_anchor": anchor,
         "scope_word": event.get("scope_word") or event.get("scope", "局部"),
         "severity_raw": float(event.get("severity_raw") or event.get("magnitude", 0.3)),
         "source": event.get("source", "公开报道"),
         "time_decay_exempt": event.get("time_decay_exempt", False),
-        "_text": text + anchor, # 将 summary 和 anchor 拼接作为校验文本
+        "_text": text + anchor,  # 将 summary 和 anchor 拼接作为校验文本
     }
 
 
@@ -107,29 +107,39 @@ def revision(fb: dict) -> dict:
 
 
 def run_pipeline(events: list, window_end: str) -> list:
+    """执行流水线，并将多节点事件拆分为独立记录以适配前端表格"""
     out = []
     for ev in events:
         ext = extractor(ev)
         fb = feedback(ext, window_end)
-        out.append(revision(fb))
+        rev = revision(fb)
+        
+        # 兼容处理：如果事件绑定了多个节点，将其拆解成多条记录
+        nodes = rev["node"]
+        if isinstance(nodes, list):
+            for n in nodes:
+                if not n:
+                    continue
+                new_rev = rev.copy()
+                new_rev["node"] = n  # 强制降维成字符串
+                out.append(new_rev)
+        else:
+            out.append(rev)
+            
     return out
 
 
 def node_exposure(results: list) -> dict:
-    """节点暴露度 = 概率并集 1 - Π(1 - s_i)。支持多节点事件。"""
+    """节点暴露度 = 概率并集 1 - Π(1 - s_i)。"""
     exp = {}
     for r in results:
         if r.get("rejected") or r.get("severity_final") is None:
             continue
         
-        # 兼容处理：把单个节点转成列表，或者遍历多个节点
-        nodes = r["node"]
-        if not isinstance(nodes, list):
-            nodes = [nodes]
-            
-        for n in nodes:
-            if not n: continue
-            # 概率并集公式
-            exp[n] = 1.0 - (1.0 - exp.get(n, 0.0)) * (1.0 - r["severity_final"])
-            
+        n = r["node"]
+        if not n:
+            continue
+        # 概率并集公式
+        exp[n] = 1.0 - (1.0 - exp.get(n, 0.0)) * (1.0 - r["severity_final"])
+        
     return exp
