@@ -14,7 +14,6 @@ from core.graph_engine import (
 from core.text_agents import run_pipeline, node_exposure
 from core.explainer import build_context, explain, guard
 
-# 修改了浏览器标签页标题
 st.set_page_config(page_title="基于LLM的多智能体博弈归因的供应链风险全景测度系统", layout="wide")
 
 CFG = load_json("config/topology_13.json")
@@ -91,7 +90,6 @@ def get_api_key() -> str:
         return os.environ.get("DEEPSEEK_API_KEY", "")
 
 with st.sidebar:
-    # 修改了侧边栏主标题
     st.title("基于LLM的多智能体博弈归因的供应链风险全景测度系统")
     st.caption("暴露度 — 责任度 二维交叉决策矩阵")
     n_perm = st.slider("蒙特卡罗采样次数", 100, 2000, 500, 100)
@@ -293,11 +291,12 @@ with tab4:
 
 with tab5:
     st.subheader("供应链风险智能问答")
+    # 修改了第三个推荐问题
     st.markdown("""
     **您可以尝试问以下问题：**
     1. 台风导致 N5 停摆，N2 也设备老化，预算给谁？
     2. N6 大面积关店是致命风险吗？
-    3. N2 暴露度只有 0.50，为什么它的责任度依然在 0.17 以上？它属于隐性关键节点吗？
+    3. 今天北京天气怎么样，我想出去旅游？
     """)
     st.divider()
 
