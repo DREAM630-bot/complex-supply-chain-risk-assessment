@@ -18,7 +18,6 @@ st.set_page_config(page_title="复杂供应链风险全景测度", page_icon="�
 CFG = load_json("config/topology_13.json")
 EVENTS = load_json("config/events.json")
 PLAYERS = [n["id"] for n in CFG["nodes"]]
-NODE_MAP = {n["id"]: n for n in CFG["nodes"]}
 WINDOW_END = CFG["meta"]["window"][1]
 
 @st.cache_data(show_spinner=False)
@@ -28,7 +27,6 @@ def compute_all(n_perm: int, seed: int):
         phi_raw = shapley_mc(CFG, PLAYERS, base, n_perm, seed)
         method = "蒙特卡罗排列采样 Shapley"
     else:
-        # 13个节点，其实可以用精确枚举（8192次计算），但这里保留原方法
         phi_raw = shapley_hierarchical(CFG, base, n_perm, seed)
         method = "分层 Shapley（候选集 + 背景聚合）"
 
@@ -46,7 +44,7 @@ def compute_all(n_perm: int, seed: int):
     ranked = sorted(phi.items(), key=lambda x: -x[1])
     rank_map = {k: i + 1 for i, (k, _) in enumerate(ranked)}
     
-    # 动态阈值设定：前 30% 视为高责任度；暴露度 > 0.15 视为高（因为文本量级最大就0.6）
+    # 【修复】动态阈值设定：前 30% 视为高责任度；暴露度 > 0.15 视为高
     resp_threshold = np.quantile(list(phi.values()), 0.70) if phi else 0
     exp_threshold = 0.15
 
@@ -67,7 +65,7 @@ def compute_all(n_perm: int, seed: int):
         else:
             quad = "常规节点"
 
-        anchors = [r for r in results if r["node"] == nid and not r.get("rejected")]
+        anchors = [r for r in results if r.get("node") == nid and not r.get("rejected")]
         rows.append({
             "id": nid, "name": n["name"], "type": n["type"], "role": n["role"],
             "capacity_source": n["capacity_source"],
@@ -122,7 +120,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
 with tab1:
     st.subheader("暴露度 — 责任度 二维交叉矩阵")
     
-    # 修复展示：不写死 [0,1]，让坐标轴自适应
+    # 【修复】图表自适应
     fig = px.scatter(
         df, x="exposure", y="responsibility",
         color="quadrant", text="name", 
@@ -134,9 +132,8 @@ with tab1:
         labels={"exposure": "暴露度（文本测度）", "responsibility": "责任度（Shapley 归因）"},
     )
     
-    # 画动态分割线，避免写死的 0.5 导致点全挤在一团
+    # 画动态十字分割线
     fig.add_vline(x=0.15, line_dash="dash", line_color="gray")
-    # Y轴分割线使用前30%分位数
     y_thresh = df["responsibility"].quantile(0.70)
     fig.add_hline(y=y_thresh, line_dash="dash", line_color="gray")
     
@@ -173,16 +170,24 @@ with tab2:
 
 with tab3:
     st.subheader("多智能体文本测度：Extractor → Feedback → Revision")
+    
+    # 【修复】建立绝对安全的 ID 到名称的一维映射字典
+    id_to_name = {n["id"]: n["name"] for n in CFG["nodes"]}
+    
     rows = []
     for r in results:
+        node_name = id_to_name.get(r.get("node"), r.get("node"))
         rows.append({
-            "事件": r["title"], "节点": NODE_MAP[r["node"]]["name"],
-            "日期": r["date"], "范围词": r["scope_word"],
-            "raw": r["severity_raw"],
-            "final": r["severity_final"] if not r.get("rejected") else "驳回",
-            "证据锚点": r["evidence_anchor"],
-            "规则日志": " | ".join(r["rule_log"]),
+            "事件": r.get("title", ""), 
+            "节点": node_name,
+            "日期": r.get("date", ""), 
+            "范围词": r.get("scope_word", ""),
+            "raw": r.get("severity_raw", 0.0),
+            "final": r.get("severity_final") if not r.get("rejected") else "驳回",
+            "证据锚点": r.get("evidence_anchor", ""),
+            "规则日志": " | ".join(r.get("rule_log", [])),
         })
+        
     st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
     st.info("R1 为硬门禁：证据锚点必须在原文逐字存在，否则直接驳回，不进入后续规则。"
             "所有暴露度评分均可追溯至原文锚点与触发规则。")
@@ -195,7 +200,7 @@ with tab4:
         base = runs["baseline"]
         keys = sorted(base, key=lambda k: -base[k])[:8]
         mat = pd.DataFrame({k: [v[x] for x in keys] for k, v in runs.items()},
-                           index=[NODE_MAP[x]["name"] for x in keys])
+                           index=[id_to_name.get(x, x) for x in keys])
         st.dataframe(mat.round(4), use_container_width=True)
         st.line_chart(mat)
         st.caption("若核心节点排序在各扰动情形下不翻转，则责任度结论稳健。")
