@@ -14,7 +14,8 @@ from core.graph_engine import (
 from core.text_agents import run_pipeline, node_exposure
 from core.explainer import build_context, explain, guard
 
-st.set_page_config(page_title="复杂供应链风险全景测度", layout="wide")
+# 修改了浏览器标签页标题
+st.set_page_config(page_title="基于LLM的多智能体博弈归因的供应链风险全景测度系统", layout="wide")
 
 CFG = load_json("config/topology_13.json")
 EVENTS = load_json("config/events.json")
@@ -90,15 +91,14 @@ def get_api_key() -> str:
         return os.environ.get("DEEPSEEK_API_KEY", "")
 
 with st.sidebar:
-    st.title("复杂供应链风险全景测度")
+    # 修改了侧边栏主标题
+    st.title("基于LLM的多智能体博弈归因的供应链风险全景测度系统")
     st.caption("暴露度 — 责任度 二维交叉决策矩阵")
     n_perm = st.slider("蒙特卡罗采样次数", 100, 2000, 500, 100)
     seed = st.number_input("随机种子", 1, 9999, 42)
     st.divider()
     api_key_input = st.text_input("DeepSeek API Key（可选，仅用于解释层）",
                                   type="password", value=get_api_key())
-    st.divider()
-    st.caption("数据边界：容量为公开锚点 / 相对比例 / 业务先验三级精度映射，不代表企业内部绝对数据。")
 
 df, results, method = compute_all(int(n_perm), int(seed))
 
@@ -112,7 +112,6 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["① 二维决策矩阵", "② 责任度归因", "③ 供应链网络拓扑", "④ 敏感性分析", "⑤ 智能体问答"]
 )
 
-# ------------------------------------------------------------------ ① 二维矩阵
 with tab1:
     st.subheader("暴露度 — 责任度 二维交叉矩阵")
     
@@ -122,7 +121,6 @@ with tab1:
     }
     
     fig = go.Figure()
-    # 按象限分别画，防止密集点完全重叠且方便控制图例
     for quad in ["显性核心", "隐性关键", "局部扰动", "常规节点"]:
         sub_df = df[df["quadrant"] == quad]
         if sub_df.empty: continue
@@ -143,7 +141,6 @@ with tab1:
             marker=dict(size=20, color=quad_color[quad], line=dict(width=2, color='white'))
         ))
 
-    # 动态十字分割线
     fig.add_vline(x=0.15, line_dash="dash", line_color="gray")
     y_thresh = df["responsibility"].quantile(0.70)
     fig.add_hline(y=y_thresh, line_dash="dash", line_color="gray")
@@ -165,7 +162,6 @@ with tab1:
 - **常规节点**：常态巡检。
 """)
 
-# ------------------------------------------------------------------ ② 责任度
 with tab2:
     st.subheader("Shapley 责任度排序（Top-K）")
     top_k = st.slider("显示 Top-K", 3, len(df), min(10, len(df)))
@@ -183,7 +179,6 @@ with tab2:
         use_container_width=True, hide_index=True,
     )
 
-# ------------------------------------------------------------------ ③ 供应链网络拓扑
 with tab3:
     st.subheader("供应链网络拓扑")
     st.markdown("节点大小反映 **Shapley 责任度**。实线为单向物流，虚线为双向调拨边。")
@@ -199,7 +194,6 @@ with tab3:
     node_dict = {n["id"]: n for n in CFG["nodes"]}
     row_dict = {row["id"]: row for row in df.to_dict("records")}
 
-    # 角色与颜色映射 (为图例准备)
     role_info = {
         "source": {"name": "供应源 (牧场)", "color": "#9b59b6"},     # 紫
         "plant": {"name": "工厂 (核心/备份)", "color": "#e74c3c"},  # 红
@@ -236,7 +230,6 @@ with tab3:
             showlegend=False, hoverinfo='none'
         ))
 
-    # 按角色画节点 (自动生成图例)
     node_traces = {}
     for nid, n in node_dict.items():
         if nid not in pos: continue
@@ -248,7 +241,6 @@ with tab3:
         quad = r_data.get("quadrant", "常规节点")
         resp = r_data.get("responsibility", 0.0)
         
-        # 放大节点
         size = 50 + (resp * 400)
         
         hover = f"<b>{n['name']} ({nid})</b><br>" \
@@ -269,13 +261,9 @@ with tab3:
         ))
 
     fig_net = go.Figure()
-    # 添加边
     for t in edge_traces: fig_net.add_trace(t)
-    # 添加节点并去重图例
-    seen_roles = set()
     for role, traces in node_traces.items():
         for i, t in enumerate(traces):
-            # 同一个角色只显示一次图例
             t.showlegend = (i == 0)
             fig_net.add_trace(t)
 
@@ -288,9 +276,7 @@ with tab3:
         legend_title="节点角色"
     )
     st.plotly_chart(fig_net, use_container_width=True)
-    st.info("图形说明：节点越大说明该节点被移除后对全局供应链破坏力越强。橙色虚线表示仓库之间的双向调拨路径。")
 
-# ------------------------------------------------------------------ ④ 敏感性分析
 with tab4:
     st.subheader("容量敏感性扫描（代理 / 先验节点 ±20%–30%）")
     id_to_name = {n["id"]: n["name"] for n in CFG["nodes"]}
@@ -305,7 +291,6 @@ with tab4:
         st.line_chart(mat)
         st.caption("若核心节点排序在各扰动情形下不翻转，则责任度结论稳健。")
 
-# ------------------------------------------------------------------ ⑤ 智能问答
 with tab5:
     st.subheader("供应链风险智能问答")
     st.markdown("""
@@ -318,7 +303,6 @@ with tab5:
 
     nodes_data = df[["id", "name", "role", "exposure", "responsibility", "rank", "quadrant"]].to_dict("records")
     global_ctx = {
-        "data_boundary": "所有容量为公开锚点/相对比例/业务先验三级精度映射",
         "all_nodes_metrics": nodes_data,
     }
 
@@ -339,7 +323,3 @@ with tab5:
             with st.spinner("智能体思考中..."):
                 ans = explain(api_key_input, global_ctx, question)
             st.markdown(ans)
-            st.caption("【可验证性】本回答的数值均来自后端图引擎，可追溯至 Shapley 值与节点指标。")
-
-st.divider()
-st.caption("离线重加工 · 在线轻交互 | 后端不做 LLM 数值计算，LLM 不做后端数值计算")
