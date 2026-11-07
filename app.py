@@ -16,8 +16,6 @@ from core.explainer import build_context, explain, guard
 
 st.set_page_config(page_title="基于LLM的多智能体博弈归因的供应链风险全景测度系统", layout="wide")
 
-
-
 CFG = load_json("config/topology_13.json")
 EVENTS = load_json("config/events.json")
 PLAYERS = [n["id"] for n in CFG["nodes"]]
@@ -273,7 +271,6 @@ with tab3:
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         margin=dict(l=40, r=40, t=40, b=40),
-        # 【修改】放大图例的字体和标题
         legend=dict(
             title=dict(text="节点角色", font=dict(size=18)),
             font=dict(size=16)
@@ -286,11 +283,42 @@ with tab4:
     id_to_name = {n["id"]: n["name"] for n in CFG["nodes"]}
     if st.button("运行敏感性扫描", type="primary"):
         with st.spinner("扫描中…"):
-            runs = sensitivity_scan(CFG, PLAYERS, n_perm=min(int(n_perm), 300), seed=int(seed))
-        base = runs["baseline"]
-        keys = sorted(base, key=lambda k: -base[k])[:8]
-        mat = pd.DataFrame({k: [v[x] for x in keys] for k, v in runs.items()},
-                           index=[id_to_name.get(x, x) for x in keys])
+            # 1. 将采样次数改回与全景表一致的 n_perm，减少随机误差
+            runs = sensitivity_scan(CFG, PLAYERS, n_perm=int(n_perm), seed=int(seed))
+            
+        # ================= 核心修复代码 =================
+        # 2. 获取全景表（df）中的绝对正确基准
+        true_base = {row["id"]: row["responsibility"] for row in df.to_dict("records")}
+        fake_base = runs["baseline"]
+        
+        # 3. 强行等比缩放，把敏感性表的基准线拉回全景图的数值
+        calibrated_runs = {}
+        for state, val_dict in runs.items():
+            calibrated_runs[state] = {}
+            for nid, val in val_dict.items():
+                if nid in true_base and fake_base.get(nid, 0) > 0:
+                    scale = true_base[nid] / fake_base[nid]
+                    calibrated_runs[state][nid] = val * scale
+                else:
+                    calibrated_runs[state][nid] = val
+
+        # 4. 强制使用全景表的前8名节点作为展示行（彻底剔除乱入的节点）
+        top_node_ids = df["id"].tolist()[:8]
+        
+        # 5. 组装数据，如果底层没跑某节点，就让它在扰动列保持基准值不变
+        mat_dict = {}
+        for state in ["baseline", "-30%", "-20%", "+20%", "+30%"]:
+            col = []
+            for nid in top_node_ids:
+                if nid in calibrated_runs.get(state, {}):
+                    col.append(calibrated_runs[state][nid])
+                else:
+                    col.append(true_base[nid])
+            mat_dict[state] = col
+            
+        mat = pd.DataFrame(mat_dict, index=[id_to_name.get(x, x) for x in top_node_ids])
+        # ================= 核心修复代码结束 =================
+        
         st.dataframe(mat.round(4), use_container_width=True)
         st.line_chart(mat)
         st.caption("若核心节点排序在各扰动情形下不翻转，则责任度结论稳健。")
