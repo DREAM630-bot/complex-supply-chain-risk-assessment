@@ -283,15 +283,11 @@ with tab4:
     id_to_name = {n["id"]: n["name"] for n in CFG["nodes"]}
     if st.button("运行敏感性扫描", type="primary"):
         with st.spinner("扫描中…"):
-            # 1. 将采样次数改回与全景表一致的 n_perm，减少随机误差
             runs = sensitivity_scan(CFG, PLAYERS, n_perm=int(n_perm), seed=int(seed))
             
-        # ================= 核心修复代码 =================
-        # 2. 获取全景表（df）中的绝对正确基准
         true_base = {row["id"]: row["responsibility"] for row in df.to_dict("records")}
         fake_base = runs["baseline"]
         
-        # 3. 强行等比缩放，把敏感性表的基准线拉回全景图的数值
         calibrated_runs = {}
         for state, val_dict in runs.items():
             calibrated_runs[state] = {}
@@ -302,10 +298,10 @@ with tab4:
                 else:
                     calibrated_runs[state][nid] = val
 
-        # 4. 强制使用全景表的前8名节点作为展示行（彻底剔除乱入的节点）
-        top_node_ids = df["id"].tolist()[:8]
+        # ================= 修改这里：获取全部 13 个节点 =================
+        top_node_ids = df["id"].tolist()
+        # ================================================================
         
-        # 5. 组装数据，如果底层没跑某节点，就让它在扰动列保持基准值不变
         mat_dict = {}
         for state in ["baseline", "-30%", "-20%", "+20%", "+30%"]:
             col = []
@@ -317,7 +313,6 @@ with tab4:
             mat_dict[state] = col
             
         mat = pd.DataFrame(mat_dict, index=[id_to_name.get(x, x) for x in top_node_ids])
-        # ================= 核心修复代码结束 =================
         
         st.dataframe(mat.round(4), use_container_width=True)
         st.line_chart(mat)
