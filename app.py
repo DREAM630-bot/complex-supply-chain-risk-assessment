@@ -16,30 +16,7 @@ from core.explainer import build_context, explain, guard
 
 st.set_page_config(page_title="基于LLM的多智能体博弈归因的供应链风险全景测度系统", layout="wide")
 
-# ======================== 登录认证 ========================
-def check_login() -> bool:
-    if st.session_state.get("authenticated", False):
-        return True
 
-    st.title("登录")
-    st.caption("请输入账号与密码后进入系统")
-    with st.form("login_form"):
-        username = st.text_input("用户名", key="login_username")
-        password = st.text_input("密码", type="password", key="login_password")
-        submitted = st.form_submit_button("登录", type="primary")
-    if submitted:
-        if username == "admin123456" and password == "qwe123456":
-            st.session_state["authenticated"] = True
-            st.session_state["username"] = username
-            st.rerun()
-        else:
-            st.error("用户名或密码错误，请重试。")
-            st.info("如果登录失败，就多刷新几下。")
-    return False
-
-if not check_login():
-    st.stop()
-# ====================== 登录认证结束 ======================
 
 CFG = load_json("config/topology_13.json")
 EVENTS = load_json("config/events.json")
