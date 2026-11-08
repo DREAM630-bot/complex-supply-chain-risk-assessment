@@ -298,9 +298,7 @@ with tab4:
                 else:
                     calibrated_runs[state][nid] = val
 
-        # ================= 修改这里：获取全部 13 个节点 =================
         top_node_ids = df["id"].tolist()
-        # ================================================================
         
         mat_dict = {}
         for state in ["baseline", "-30%", "-20%", "+20%", "+30%"]:
@@ -316,6 +314,16 @@ with tab4:
         
         st.dataframe(mat.round(4), use_container_width=True)
         st.line_chart(mat)
+        
+        # 新增：一键下载 CSV
+        csv = mat.round(4).to_csv().encode('utf-8-sig')
+        st.download_button(
+            label="📥 下载敏感性分析数据 (CSV)",
+            data=csv,
+            file_name='sensitivity_scan.csv',
+            mime='text/csv',
+            type="secondary"
+        )
         st.caption("若核心节点排序在各扰动情形下不翻转，则责任度结论稳健。")
 
 with tab5:
@@ -328,7 +336,8 @@ with tab5:
     """)
     st.divider()
 
-    nodes_data = df[["id", "name", "role", "exposure", "responsibility", "rank", "quadrant"]].to_dict("records")
+    # 关键修改：补全了传给大模型的拓扑身份、类型等字段
+    nodes_data = df[["id", "name", "type", "role", "exposure", "responsibility", "rank", "quadrant", "is_cut_point", "capacity_source"]].to_dict("records")
     global_ctx = {
         "all_nodes_metrics": nodes_data,
     }
