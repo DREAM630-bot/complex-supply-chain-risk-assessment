@@ -14,7 +14,7 @@ from core.graph_engine import (
 from core.text_agents import run_pipeline, node_exposure
 from core.explainer import build_context, explain, guard
 
-st.set_page_config(page_title="基于LLM的多智能体博弈归因的供应链风险全景测度系统", layout="wide")
+st.set_page_config(page_title="基于LLM与图博弈归因的供应链风险智能测度系统", layout="wide")
 
 CFG = load_json("config/topology_13.json")
 EVENTS = load_json("config/events.json")
@@ -90,7 +90,7 @@ def get_api_key() -> str:
         return os.environ.get("DEEPSEEK_API_KEY", "")
 
 with st.sidebar:
-    st.title("基于LLM的多智能体博弈归因的供应链风险全景测度系统")
+    st.title("基于LLM与图博弈归因的供应链风险智能测度系统")
     st.caption("暴露度 — 责任度 二维交叉决策矩阵")
     n_perm = st.slider("蒙特卡罗采样次数", 100, 2000, 500, 100)
     seed = st.number_input("随机种子", 1, 9999, 42)
