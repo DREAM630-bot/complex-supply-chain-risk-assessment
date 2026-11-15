@@ -95,8 +95,8 @@ with st.sidebar:
     n_perm = st.slider("蒙特卡罗采样次数", 100, 2000, 500, 100)
     seed = st.number_input("随机种子", 1, 9999, 42)
     st.divider()
-     api_key_input = st.text_input("DeepSeek API Key（可选，仅用于解释层）",
-                                type="password", value=get_api_key())
+    # 修改：隐藏输入框，直接从配置或环境变量读取
+    api_key_input = get_api_key()
 
 df, results, method = compute_all(int(n_perm), int(seed))
 
@@ -352,7 +352,8 @@ with tab5:
         if not ok:
             st.warning(f"越界拦截：{reason}")
         elif not api_key_input:
-            st.error("请在侧边栏填写 DeepSeek API Key（或配置 secrets.toml）。")
+            # 由于输入框已隐藏，这里提示语可引导用户使用配置文件
+            st.error("未检测到 DeepSeek API Key，请配置环境变量或在 .streamlit/secrets.toml 中配置。")
         elif not question.strip():
             st.warning("请先输入您的问题。")
         else:
