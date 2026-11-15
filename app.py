@@ -95,8 +95,7 @@ with st.sidebar:
     n_perm = st.slider("蒙特卡罗采样次数", 100, 2000, 500, 100)
     seed = st.number_input("随机种子", 1, 9999, 42)
     st.divider()
-    api_key_input = st.text_input("DeepSeek API Key（可选，仅用于解释层）",
-                                  type="password", value=get_api_key())
+     api_key_input = get_api_key()
 
 df, results, method = compute_all(int(n_perm), int(seed))
 
